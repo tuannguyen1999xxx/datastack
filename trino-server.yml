@@ -1,0 +1,12 @@
+version: '3.7'
+
+services:
+  trino:
+    image: trinodb/trino:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./trino-server-435/etc:/etc/trino
+    environment:
+      TZ: "Asia/Ho_Chi_Minh"
+    restart: unless-stopped

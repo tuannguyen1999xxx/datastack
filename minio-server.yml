@@ -1,0 +1,68 @@
+# version: '3.7'
+
+# # Settings and configurations that are common for all containers
+# x-minio-common: &minio-common
+#   image: quay.io/minio/minio:RELEASE.2024-01-01T16-36-33Z
+#   command: server --console-address ":9001" http://minio{1...4}/data{1...2}
+#   expose:
+#     - "9000"
+#     - "9001"
+#   environment:
+#     MINIO_ROOT_USER: metaint
+#     MINIO_ROOT_PASSWORD: elcom@123
+#     TZ: "Asia/Ho_Chi_Minh"
+#   healthcheck:
+#     test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+#     interval: 30s
+#     timeout: 20s
+#     retries: 3
+#   restart: always
+
+# # starts 4 docker containers running minio server instances.
+# # using nginx reverse proxy, load balancing, you can access
+# # it through port 9000.
+# services:
+#   minio2:
+#     <<: *minio-common
+#     hostname: minio2
+#     volumes:
+#       - /ttttbien2/vsat/minio-data/data-1:/data1
+#   nginx:
+#     image: nginx:latest
+#     hostname: nginx
+#     volumes:
+#       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+#     ports:
+#       - "9090:9090"
+#       - "9091:9091"
+#     restart: always
+#     depends_on:
+#       - minio2
+#     networks:
+#       - datalake-net
+      
+# networks: 
+#   datalake-net: 
+#     external: true 
+
+version: '3.7'
+
+services:
+  minio:
+    image: quay.io/minio/minio:RELEASE.2024-01-01T16-36-33Z
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - /ttttbien2/vsat/minio-data/data-1:/data
+    environment:
+      MINIO_ROOT_USER: metaint
+      MINIO_ROOT_PASSWORD: elcom@123
+      TZ: "Asia/Ho_Chi_Minh"
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+    #   interval: 30s
+    #   timeout: 20s
+    #   retries: 3
+    restart: unless-stopped
+    command: server --console-address ":9001" /data
